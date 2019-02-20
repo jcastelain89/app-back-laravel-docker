@@ -1,0 +1,37 @@
+version: '2'
+
+services:
+  mariadb:
+    image: 'bitnami/mariadb:latest'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MARIADB_USER=homestead
+      - MARIADB_DATABASE=homestead
+      - MARIADB_PASSWORD=secret
+
+  myapp:
+    tty: true
+    image: 'bitnami/laravel:latest'
+    labels:
+      kompose.service.type: nodeport
+    environment:
+      - DB_HOST=mariadb
+      - DB_USERNAME=homestead
+      - DB_DATABASE=homestead
+      - DB_PASSWORD=secret
+    depends_on:
+      - mariadb
+    ports:
+      - 3000:3000
+    volumes:
+      - ./:/app
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    depends_on:
+      - mariadb
+    ports:
+      - 8000:80
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      PMA_HOST: mariadb
